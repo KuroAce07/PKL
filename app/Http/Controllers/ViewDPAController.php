@@ -57,6 +57,8 @@ class ViewDPAController extends Controller
         'pembantupptkUsers' => $pembantupptkUsers,
         'bendaharaUsers' => $bendaharaUsers,
         'column' => $column, // Pass the column value to your view
+        'ke' => '',
+
     ]);
 }
 
@@ -483,5 +485,52 @@ public function addmetodepengadaan(Request $request)
         public function export()
         {
             return Excel::download(new exportdokumen, 'dokumen.xlsx');
+        }
+    
+        public function ViewDPA($ke) {
+            // $column = $request->input('column');
+            // Subquery to select the maximum 'id' for each 'id_dpa'
+            $subquery = DPA::selectRaw('MAX(id) as max_id')
+                ->groupBy('id_dpa');
+        
+            // Query to retrieve DPA data by joining with the subquery
+            $dpaData = DPA::joinSub($subquery, 'max_ids', function ($join) {
+                $join->on('dpa.id', '=', 'max_ids.max_id');
+            })
+            ->orderBy('id_dpa')
+            ->get(); // Get all data
+        
+            
+            // Check if the logged-in user has role_id 1 (admin) and allow access to all DPAs
+            if (auth()->user()->role_id === 1) {
+                // No need to filter if the user is an admin
+                $accessibleDpaData = $dpaData;
+            } else {
+                // Filter DPAs based on user access
+                $filteredDpaData = $dpaData->filter(function ($dpa) {
+                    return $this->canViewDpa($dpa);
+                });
+        
+                // Create a LengthAwarePaginator instance for the filtered data
+                $perPage = 10;
+                $currentPage = LengthAwarePaginator::resolveCurrentPage();
+                $currentPageItems = $filteredDpaData->slice(($currentPage - 1) * $perPage, $perPage)->all();
+                $accessibleDpaData = new LengthAwarePaginator($currentPageItems, count($filteredDpaData), $perPage);
+            }
+        
+            $users = User::where('role_id', 3)->get();
+            $pejabatPengadaanUsers = User::where('role_id', 4)->get();
+            $pembantupptkUsers = User::where('role_id', 5)->get();
+            $bendaharaUsers = User::where('role_id', 6)->get();
+        
+            return view('ViewDPA.index', [
+                'dpaData' => $accessibleDpaData,
+                'users' => $users,
+                'pejabatPengadaanUsers' => $pejabatPengadaanUsers,
+                'pembantupptkUsers' => $pembantupptkUsers,
+                'bendaharaUsers' => $bendaharaUsers,
+                'ke' => $ke,
+                // 'column' => $column, // Pass the column value to your view
+            ]);
         }
 }

@@ -10,7 +10,7 @@
     </div>
 
     @include('common.alert')
-    <a href="{{ route('ViewDPA.export') }}" class="btn btn-success ml-auto">Export to Excel</a>
+
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">List of DPAs</h6>
@@ -35,7 +35,7 @@
                             @endhasrole
                             @hasrole('Pejabat Pengadaan')
                             <th>RUP</th>
-                            @if ($ke == 'pemilihan') <th>Keterangan</th> @endif
+                            <th>Keterangan</th>
                             @endhasrole
 
                             @hasrole('PPTK')
@@ -77,11 +77,7 @@
                             <th>Kelengkapan Dokumen</th>
                             @endhasrole
                             @hasrole('Bendahara')
-                            @if ($ke == 'ceklis' || $ke == '') <th>Form Ceklis</th> @endif
-                            @if ($ke == 'SPP' || $ke == '') <th>SPP</th> @endif
-                            @if ($ke == 'SPM' || $ke == '') <th>SPM</th> @endif
-                            @if ($ke == 'SP2D' || $ke == '') <th>SP2D</th> @endif
-                            <th>Action</th>
+                            <th>Form Ceklis</th>
                             @endhasrole
                         </tr>
 
@@ -151,23 +147,52 @@
                                     @endhasrole
 
                                     @hasrole('Pejabat Pengadaan')
-                            <td>RUP: {{ $dpa->rup }}
-                                        
-                                Nilai: {{ $dpa->nilairup }}</td>
-                                @php
-                                $isDpaAlreadyCreated2 = \App\Models\Pengadaan::where('dpa_id', $dpa->id)->exists();
-                                @endphp
-                                @if ($ke == 'pemilihan')
-                                    @if (!$isDpaAlreadyCreated2)
-                                    <!-- Check if DPA hasn't been created -->
-    
-                                    <td><a href="{{ route('pengadaan.create_pengadaan', ['id' => $dpa->id]) }}"
-                                            class="btn btn-primary edit-btn">Buat Dokumen Pemilihan</a></td>
-                                    @else
-                                    <td>Dokumen Sudah Ada</td>
-                                    @endif
-                                @endif
-                                @endhasrole
+                            <td>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#submitFormRUP-{{ $dpa->id_dpa }}">
+                                                Lihat RUP
+                                            </button>
+                                <div class="modal fade" id="submitFormRUP-{{ $dpa->id_dpa }}" tabindex="-1"
+                                    role="dialog" aria-labelledby="submitFormRUPLabel-{{ $dpa->id_dpa }}"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <form method="POST"
+                                                action="{{ route('submitRUP', ['dpaId' => $dpa->id]) }}">
+                                                @csrf
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="submitFormRUPLabel-{{ $dpa->id_dpa }}">
+                                                        Submit RUP Form</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">×</span>
+                                                                </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label for="rup-{{ $dpa->id_dpa }}">RUP:</label>
+                                                        <input id="rup-{{ $dpa->id_dpa }}" name="rup" class="form-control" value="{{ $dpa->rup }}">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="nilairup-{{ $dpa->id_dpa }}">Nilai RUP:</label>
+                                                        <input id="nilairup-{{ $dpa->id_dpa }}" name="nilairup" class="form-control" value="{{ $dpa->nilairup }}">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            @php
+                            $isDpaAlreadyCreated2 = \App\Models\Pengadaan::where('dpa_id', $dpa->id)->exists();
+                            @endphp
+                            @if (!$isDpaAlreadyCreated2)
+                            <!-- Check if DPA hasn't been created -->
+
+                            <td><a href="{{ route('pengadaan.create_pengadaan', ['id' => $dpa->id]) }}"
+                                    class="btn btn-primary edit-btn">Buat Dokumen Pemilihan</a></td>
+                            @else
+                            <td>Dokumen Sudah Ada</td>
+                            @endif
+                            @endhasrole
                             </div>
                             </td>
 
@@ -217,49 +242,46 @@
                         <!-- Add a hidden input to store the selected Pejabat Pengadaan value -->
                         <input type="hidden" id="pp-value-{{ $dpa->id_dpa }}" name="pp" value="{{ $dpa->user_id2 }}">
 
-<div class="btn-group">
-    @if ($dpa->user_id2 && $dpa->pejabatPengadaanUser)
-        <div class="user-name">
-        Pejabat Pengadaan: {{ $dpa->pejabatPengadaanUser->first_name }} {{ $dpa->pejabatPengadaanUser->last_name }}
-        </div>
-    @else
-        <button type="button" id="assign-btn-{{ $dpa->id_dpa }}" class="btn btn-secondary dropdown-toggle assign-btn" data-toggle="dropdown">
-            Assign Pejabat Pengadaan
-        </button>
-        <div class="dropdown-menu">
-            @foreach ($pejabatPengadaanUsers as $pejabatPengadaanUser)
-                <a class="dropdown-item" href="#" onclick="assignUser('{{ $dpa->id_dpa }}', '{{ $pejabatPengadaanUser->id }}', '{{ $pejabatPengadaanUser->first_name }} {{ $pejabatPengadaanUser->last_name }}')">
-                    {{ $pejabatPengadaanUser->first_name }} {{ $pejabatPengadaanUser->last_name }}
-                </a>
-            @endforeach
-        </div>
-    @endif
-</div>
-                    
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Save changes</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                        </form>
+                        <!-- Update the Pejabat Pengadaan dropdown -->
+                        <div class="btn-group">
+                            @if ($dpa->user_id2 && $dpa->pejabatPengadaanUser)
+                                {{ $dpa->pejabatPengadaanUser->first_name }} {{ $dpa->pejabatPengadaanUser->last_name }}
+                            @else
+                                <div class="dropdown">
+                                <button type="button" id="assign-btn-{{ $dpa->id_dpa }}" class="btn btn-secondary dropdown-toggle assign-btn" data-toggle="dropdown">
+                                    Assign Pejabat Pengadaan
+                                </button>
+                                <div class="dropdown-menu">
+                                    @foreach ($pejabatPengadaanUsers as $pejabatPengadaanUser)
+                                        <a class="dropdown-item" href="#" onclick="assignUser({{ $dpa->id_dpa }}, {{ $pejabatPengadaanUser->id }}, '{{ $pejabatPengadaanUser->first_name }} {{ $pejabatPengadaanUser->last_name }}')">
+                                            {{ $pejabatPengadaanUser->first_name }} {{ $pejabatPengadaanUser->last_name }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </td>
+    </div>
+</td>
 
 <!-- JavaScript to handle modal behavior -->
 <script>
-    function assignUser(dpaId, userId, userName) {
-        // Update the hidden input with the selected user
-        document.getElementById('pp-value-' + dpaId).value = userId;
+function assignPP(dpaId, userId, userName) {
+    // Update the hidden input with the selected user
+    document.getElementById('pp-value-' + dpaId).value = userId;
 
-        // Update the dropdown button text with the selected user's name
-        document.getElementById('assign-btn-' + dpaId).textContent = userName;
-    }
+    // Update the dropdown button text with the selected user's name
+    document.getElementById('assign-btn-' + dpaId).textContent = userName;
+}
 </script>
-
-
 @endif
 @endhasrole
 
@@ -307,6 +329,7 @@
                                 </select>
                                 @endif
                             </div>
+                            
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Save changes</button>
@@ -353,7 +376,6 @@ Lihat Keterangan Disposisi
                     <!-- Update the PPPTK dropdown -->
                     <div class="btn-group">
                     @if ($dpa->user_id3 && $dpa->pembantupptkUsers)
-                    Pembantu PPTK:
                         {{ $dpa->pembantupptkUsers->first_name }} {{ $dpa->pembantupptkUsers->last_name }}
                     @else
                         <div class="dropdown">
@@ -386,10 +408,13 @@ Lihat Keterangan Disposisi
 function assignPPPTK(dpaId, userId, userName) {
     // Update the hidden input with the selected user
     document.getElementById('ppptk-value-' + dpaId).value = userId;
+
     // Update the dropdown button text with the selected user's name
     document.getElementById('assign-btn-' + dpaId).innerHTML = userName;
 }
 </script>
+
+
 @endif
 @endhasrole
 
@@ -482,7 +507,6 @@ Lihat Keterangan Disposisi
                         <!-- Update the Bendahara dropdown -->
                         <div class="btn-group">
                             @if ($dpa->user_id4 && $dpa->bendaharaUsers)
-                            Bendahara: 
                                 {{ $dpa->bendaharaUsers->first_name }} {{ $dpa->bendaharaUsers->last_name }}
                             @else
                                 <div class="dropdown">
@@ -636,30 +660,23 @@ Lihat Keterangan Disposisi
         <div class="form-group">
             <label for="sumber_dana-{{ $dpa->id }}">Sumber Dana:</label>
             <select id="sumber_dana-{{ $dpa->id }}" name="sumber_dana" class="form-control">
-                @php
-                    $sumberDanaList = DB::table('sumberdana')->select('Sumber_Dana')->get();
-                @endphp
-                @foreach($sumberDanaList as $sumberDana)
-                    <option value="{{ $sumberDana->Sumber_Dana }}" {{ $dpa->sumber_dana == $sumberDana->Sumber_Dana ? 'selected' : '' }}>
-                        {{ $sumberDana->Sumber_Dana }}
-                    </option>
-                @endforeach
-            </select>
+            <option value="DAU" {{ $dpa->sumber_dana == 'DAU' ? 'selected' : '' }}>DAU</option>
+            <option value="PAD" {{ $dpa->sumber_dana == 'PAD' ? 'selected' : '' }}>PAD</option>
+            <option value="DBH Pemerintah Provinsi" {{ $dpa->sumber_dana == 'DBH Pemerintah Provinsi' ? 'selected' : '' }}>DBH Pemerintah Provinsi</option>
+            <option value="DBH Provinsi" {{ $dpa->sumber_dana == 'DBH Provinsi' ? 'selected' : '' }}>DBH Provinsi</option>
+        </select>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
-    
-    
-    
 
-    {{-- <form method="POST" action="{{ route('submitSumberDana', ['dpaId' => $dpa->id]) }}">
+    <form method="POST" action="{{ route('submitSumberDana', ['dpaId' => $dpa->id]) }}">
         @csrf
         <div class="form-group">
             <label for="other-{{ $dpa->id }}">Other:</label>
             <input type="text" id="other-{{ $dpa->id }}" name="other" class="form-control" value="{{ $dpa->sumber_dana }}">
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
-    </form> --}}
+    </form>
 
 </td>
 @endhasrole
@@ -680,45 +697,18 @@ Lihat Keterangan Disposisi
             $spp = \App\Models\Bendahara::where('dpa_id', $dpa->id)->first();
             @endphp
             @hasrole('Bendahara')
-            @if ($ke == 'ceklis' || $ke == '')
-                @if (!$isDpaAlreadyCreated)
-                <!-- Check if DPA hasn't been created -->
-                <td><a href="{{ route('ceklisform.index', ['id' => $dpa->id]) }}" class="btn btn-primary edit-btn">Ceklis</a></td>
-                @else
-                <td><a href="{{ route('ceklisform.result', ['id' => $dpa->id]) }}" class="btn btn-success">Lihat Hasil</a></td>
-                @endif
+            @if (!$isDpaAlreadyCreated)
+            <!-- Check if DPA hasn't been created -->
+            <td><a href="{{ route('ceklisform.index', ['id' => $dpa->id]) }}" class="btn btn-primary edit-btn">Ceklis</a></td>
+            @else
+            <td><a href="{{ route('ceklisform.result', ['id' => $dpa->id]) }}" class="btn btn-success">Lihat Hasil</a></td>
             @endif
-            @if ($ke == 'SPP' || $ke == '')
-                @if ($spp == null)
-                <td><a href="{{ route('bendahara.create_spp', ['id' => $dpa->id]) }}" class="btn btn-success edit-btn">SPP</a></td>
-                @else
-                <td>Sudah Ada</td>
-                @endif
-            @endif
-            @if ($ke == 'SPM' || $ke == '')
-                @if ($spp == null)
-                <td><a href="{{ route('bendahara.create_spm', ['id' => $dpa->id]) }}" class="btn btn-warning edit-btn">SPM</a></td>
-                @else
-                <td>Sudah Ada</td>
-                @endif
-            @endif
-            @if ($ke == 'SP2D' || $ke == '')
-                @if ($spp == null)
-                <td><a href="{{ route('bendahara.create_sp2d', ['id' => $dpa->id]) }}" class="btn btn-danger edit-btn">SP2D</a></td>
-                @else
-                <td>Sudah Ada</td>
-                @endif
-            @endif
-            {{-- <td><a href="{{ route('bendahara.create_sp2d', ['id' => $dpa->id]) }}" class="btn btn-danger edit-btn">SP2D</a></td> --}}
             @endhasrole
             </tr>
             @endforeach
             </tbody>
             </table>
-            <!-- Pagination Links -->
-            <div>
-                {{ $dpaData->links() }}
-            </div>
+            {{-- {{ $dpaData->links() }} --}}
         </div>
     </div>
 </div>
@@ -813,17 +803,11 @@ Lihat Keterangan Disposisi
             </div>
             <div class="modal-body">
                 <h6>Progress Status:</h6>
-                {{-- @if (dpa->user_id4)
-                <br><span class="badge badge-success">Completed</span> Finish
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh Bendahara
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK Dan Sudah Diverifikasi 
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh Penjabat Pengadaan
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK
-                <br><span class="badge badge-success">Has Assigned</span> Start --}}
                 @if ($dpa->user_id4)
                 <br><span class="badge badge-warning">Not Yet</span> Finish
                 <br><span class="badge badge-info">In Progress</span> Dikerjakan Oleh Bendahara
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK Dan Sudah Diverifikasi 
+                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK Dan Sudah Diverifikasi oleh
+                Penjabat Pengadaan
                 <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh Penjabat Pengadaan
                 <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK
                 <br><span class="badge badge-success">Has Assigned</span> Start
@@ -852,7 +836,8 @@ Lihat Keterangan Disposisi
                 {{-- <div style="border-left: 16px solid purple"> --}}
                     <br><span class="badge badge-warning text-warning">Not Assigned</span> Finish
                     <br><span class="badge badge-warning">Not Assigned</span> Dikerjakan Oleh Bendahara
-                    <br><span class="badge badge-warning">Not Assigned</span> Dikerjakan Oleh PPTK Dan Sudah Diverifikasi
+                    <br><span class="badge badge-warning">Not Assigned</span> Dikerjakan Oleh PPTK Dan Sudah
+                    Diverifikasi
                     <br><span class="badge badge-warning">Not Assigned</span> Dikerjakan Oleh Penjabat Pengadaan
                     <br><span class="badge badge-warning">Not Assigned</span> Dikerjakan Oleh Penjabat Pengadaan
                     <br><span class="badge badge-warning">Not Assigned</span> Dikerjakan Oleh PPTK

@@ -18,8 +18,6 @@
                         <th>Kode Akun</th>
                         <th>Akun</th>
                         <th>Nilai Rincian</th>
-                        <th>Status</th>
-                        <th>Detail</th>
                         <th>Jenis</th>
                         <th>Actions</th>
                     </tr>
@@ -33,30 +31,6 @@
                         <td>{{ $dpa->kode_akun }}</td>
                         <td>{{ $dpa->nama_akun }}</td>
                         <td>Rp. {{ number_format($dpa->nilai_rincian, 0, ',', '.') }}</td>
-                        <td>
-                            @if(!is_null($dpa->user_id4))
-                            Selesai
-                            @else
-                            Belum Selesai
-                            @endif
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <!-- Detail button trigger -->
-                                <button type="button" class="btn btn-info detail-btn" data-toggle="modal" data-target="#detailModal{{ $dpa->id }}">
-                                    Detail
-                                </button>
-                                <!-- Tracking button trigger -->
-                                <button type="button" class="btn btn-primary tracking-btn" data-toggle="modal" data-target="#trackingModal{{ $dpa->id }}">
-                                    Tracking
-                                </button>
-
-                                @if ($dpa->tipe === 'DPPA')
-                                    <a href="{{ route('ViewDPA.dppa', ['id_dpa'=>$dpa->id_dpa]) }}" class="btn btn-success" style="text-decoration: none; color: white;">Cek DPA</a>
-                                @endif
-                                <a href="{{ route('ViewDPA.realrak', ['id' => $dpa->id_dpa]) }}" class="btn btn-warning" target="_blank">RAK</a>
-                            </div>
-                        </td>
                         <td>{{ $dpa->tipe }}</td>
                         <td>
                             @if ($dpa->assignedUser)
@@ -84,6 +58,13 @@
         </div>
     </div>
 
+
+
+
+                        
+
+    
+
     <form action="{{ route('pengadaan.store_pengadaan') }}" method="post" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="dpa_id" value="{{ $dpa_id }}">
@@ -101,16 +82,13 @@
         <div class="form-group">
             <label for="pilihan">Pilih Jenis Dokumen:</label>
             <select class="form-control" name="pilihan" id="pilihan">
-                @php
-                    $metodePengadaanList = \App\Models\AddMetodePengadaan::pluck('metode_pengadaan', 'id');
-                @endphp
-        
-                @foreach($metodePengadaanList as $id => $metode)
-                    <option value="{{ $id }}">{{ $metode }}</option>
-                @endforeach
+                <option value="Kontrak">Kontrak</option>
+                <option value="Pemesanan">Pemesanan</option>
+                <option value="E-Purchasing">E-Purchasing</option>
+                <option value="Lainnya">Lainnya</option>
+                <!-- Tambahkan pilihan lainnya sesuai kebutuhan -->
             </select>
         </div>
-        
         
         <div class="form-group">
             <label for="keterangan">Keterangan:</label>

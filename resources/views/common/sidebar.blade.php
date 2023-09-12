@@ -157,7 +157,11 @@
         <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">DPA</h6>
-                <a class="collapse-item" href="{{ route('ViewDPA.index') }}">Lihat List DPA</a>
+                {{-- <a class="collapse-item" href="{{ route('ViewDPA.index') }}">Lihat List DPA</a> --}}
+                <a class="collapse-item" href="{{ route('ceklisDPA.dpa', ['ke' => 'ceklis']) }}">Ceklis Form</a>
+                <a class="collapse-item" href="{{ route('ceklisDPA.dpa', ['ke' => 'SPP']) }}">SPP</a>
+                <a class="collapse-item" href="{{ route('ceklisDPA.dpa', ['ke' => 'SPM']) }}">SPM</a>
+                <a class="collapse-item" href="{{ route('ceklisDPA.dpa', ['ke' => 'SP2D']) }}">SP2D</a>
             </div>
         </div>
     </li>
@@ -182,6 +186,8 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">DPA</h6>
                 <a class="collapse-item" href="{{ route('ViewDPA.index') }}">Lihat List DPA</a>
+                <a class="collapse-item" href="{{ route('ViewDPA.pengadaan', ['ke' => 'pemilihan']) }}">Buat Dokumen Pemilihan</a>
+
             </div>
         </div>
     </li>

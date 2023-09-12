@@ -250,6 +250,7 @@ Route::get('/ceklisform/result/{id}', [CeklisformController::class, 'showResult'
 Route::get('/ceklisform/download-pdf/{id}', [CeklisformController::class, 'downloadPdf'])->name('ceklisform.downloadPdf');
 Route::get('/ceklisform/{id}/edit', [CeklisformController::class, 'edit'])->name('ceklisform.edit');
 Route::put('/ceklisform/{id}', [CeklisformController::class, 'update'])->name('ceklisform.update');
+Route::get('/ceklisDPA/{ke}', [ViewDPAController::class, 'ViewDPA'])->name('ceklisDPA.dpa');
 
 
 //Pejabat Pengadaan
@@ -260,6 +261,8 @@ Route::get('/pengadaan', [PengadaanController::class, 'berkas'])->name('pengadaa
 Route::delete('/pengadaan/{id}', [PengadaanController::class, 'delete'])->name('pengadaan.delete');
 Route::get('/pengadaan/{id}/edit', [PengadaanController::class, 'edit'])->name('pengadaan.edit');
 Route::put('/pengadaan/{id}', [PengadaanController::class, 'update'])->name('pengadaan.update');
+Route::get('/viewDPA/{ke}', [ViewDPAController::class, 'ViewDPA'])->name('ViewDPA.pengadaan');
+
 
 // Users 
 Route::middleware('auth')->prefix('users')->name('users.')->group(function(){
