@@ -61,6 +61,8 @@ Route::get('/Dokumen/Create', [ArsipController::class, 'create'])->name('Arsip.c
 Route::post('/Dokumen/Store', [ArsipController::class, 'store'])->name('Arsip.store');
 Route::delete('/Dokumen/{id}', [ArsipController::class, 'destroy'])->name('Arsip.destroy');
 Route::get('/Dokumen/Export', [ArsipController::class, 'export'])->name('Arsip.export');
+Route::post('/Dokumen/{id}/storefile', [ArsipController::class, 'storefile'])->name('Arsip.storefile');
+
 // Permissions
 Route::resource('permissions', App\Http\Controllers\PermissionsController::class);
 //rekanan
@@ -239,9 +241,11 @@ Route::get('/ViewDPA/{dpaId}/{userId}', [ViewDPAController::class, 'assignDpa'])
 Route::get('/form/create_spp/{id}', [BendaharaController::class, 'create_spp'])->name('bendahara.create_spp');
 Route::get('/form/create_spm/{id}', [BendaharaController::class, 'create_spm'])->name('bendahara.create_spm');
 Route::get('/form/create_sp2d/{id}', [BendaharaController::class, 'create_sp2d'])->name('bendahara.create_sp2d');
+Route::get('/form/submit/{dpa_id}', [BendaharaController::class, 'submit'])->name('bendahara.submit');
 Route::post('/form/store_spp', [BendaharaController::class, 'store_spp'])->name('bendahara.store_spp');
 Route::post('/form/store_spm', [BendaharaController::class, 'store_spm'])->name('bendahara.store_spm');
 Route::post('/form/store_sp2d', [BendaharaController::class, 'store_sp2d'])->name('bendahara.store_sp2d');
+
 
 //ceklisform
 Route::get('/ceklisform/{id}', [CeklisformController::class, 'index'])->name('ceklisform.index');

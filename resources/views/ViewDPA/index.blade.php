@@ -80,8 +80,10 @@
                             @if ($ke == 'ceklis' || $ke == '') <th>Form Ceklis</th> @endif
                             @if ($ke == 'SPP' || $ke == '') <th>SPP</th> @endif
                             @if ($ke == 'SPM' || $ke == '') <th>SPM</th> @endif
-                            @if ($ke == 'SP2D' || $ke == '') <th>SP2D</th> @endif
+                            @if ($ke == 'SP2D' || $ke == '') <th>SP2D</th> 
                             <th>Action</th>
+                            @endif
+                            
                             @endhasrole
                         </tr>
 
@@ -708,8 +710,8 @@ Lihat Keterangan Disposisi
                 @else
                 <td>Sudah Ada</td>
                 @endif
+                <td><a href="{{ route('bendahara.submit', ['dpa_id' => $dpa->id]) }}" class="btn btn-dark edit-btn">Tambahkan Ke Dokumen Pencairan</a></td>
             @endif
-            {{-- <td><a href="{{ route('bendahara.create_sp2d', ['id' => $dpa->id]) }}" class="btn btn-danger edit-btn">SP2D</a></td> --}}
             @endhasrole
             </tr>
             @endforeach
@@ -813,14 +815,14 @@ Lihat Keterangan Disposisi
             </div>
             <div class="modal-body">
                 <h6>Progress Status:</h6>
-                {{-- @if (dpa->user_id4)
-                <br><span class="badge badge-success">Completed</span> Finish
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh Bendahara
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK Dan Sudah Diverifikasi 
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh Penjabat Pengadaan
-                <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK
-                <br><span class="badge badge-success">Has Assigned</span> Start --}}
-                @if ($dpa->user_id4)
+                @if (\App\Models\ArsipLama::where('tipe', $dpa->id_dpa)->exists())
+                    <br><span class="badge badge-success">Completed</span> Finish
+                    <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh Bendahara
+                    <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK Dan Sudah Diverifikasi 
+                    <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh Penjabat Pengadaan
+                    <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK
+                    <br><span class="badge badge-success">Has Assigned</span> Start
+                @elseif ($dpa->user_id4)
                 <br><span class="badge badge-warning">Not Yet</span> Finish
                 <br><span class="badge badge-info">In Progress</span> Dikerjakan Oleh Bendahara
                 <br><span class="badge badge-success">Completed</span> Dikerjakan Oleh PPTK Dan Sudah Diverifikasi 

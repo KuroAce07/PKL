@@ -7,6 +7,8 @@ use App\Models\Bendahara;
 use App\Models\Rekanan;
 use App\Models\DPA;
 use App\Models\User;
+use App\Models\RisalahKontrak;
+use App\Models\ArsipLama;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class BendaharaController extends Controller
@@ -195,4 +197,50 @@ class BendaharaController extends Controller
             // 'column' => $column, // Pass the column value to your view
         ]);
     }
+    public function submit($dpa_id){
+        $dpaData = DPA::find($dpa_id); // Use find instead of get to retrieve a single DPA record by its ID
+    
+        if (!$dpaData) {
+            return redirect()->back()->with('error', 'DPA not found.'); // Handle the case where DPA doesn't exist
+        }
+    
+        // Retrieve the data from the selected row in table bendaharas
+        $bendaharaData = Bendahara::where('dpa_id', $dpa_id)->first();
+    
+        if (!$bendaharaData) {
+            return redirect()->back()->with('error', 'Bendahara data not found for this DPA.');
+        }
+    
+        // Retrieve additional data from the DPA table based on the same dpa_id
+        $additionalData = DPA::select('nama_akun', 'nama_kegiatan', 'nama_sub_kegiatan', 'nama_skpd')
+            ->where('id_dpa', $dpa_id)
+            ->first();
+    
+        // Retrieve 'sumber_dana' data from the 'risalah_kontraks' table based on 'dpa_id'
+        $sumberDanaData = RisalahKontrak::where('dpa_id', $dpa_id)->pluck('sumber_dana')->first();
+    
+        // Set the columns from all tables to update or insert into table arsip_lama
+        $arsipLamaData = [
+            'no_spm' => $bendaharaData->no_spm,
+            'nilai_spm' => $bendaharaData->nilai_spm,
+            'no_sp2d' => $bendaharaData->no_sp2d,
+            'tipe' => $bendaharaData->dpa_id, // Assuming 'tipe' should be set to 'dpa_id'
+            'tanggal_spm' => now(), // Set the 'tanggal_spm' column to the current date
+            'uraian_belanja' => $additionalData->nama_akun,
+            'nama_sub_kegiatan' => $additionalData->nama_kegiatan,
+            'sub_kegiatan' => $additionalData->nama_sub_kegiatan,
+            'nama' => $additionalData->nama_skpd,
+            'sumber_dana' => $sumberDanaData, // Add 'sumber_dana' from 'risalah_kontraks'
+        ];
+    
+        // Update or insert into table arsip_lama based on 'tipe' (dpa_id) column
+        ArsipLama::updateOrInsert(
+            ['tipe' => $bendaharaData->dpa_id],
+            $arsipLamaData
+        );
+    
+        return redirect()->route('Arsip.index')->with('success', 'Data successfully added or updated in dokumen pencairan.');
+    }
+    
+
 }

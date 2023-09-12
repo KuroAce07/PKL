@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use App\Models\ArsipLama;
+use App\Models\Bendahara;
 use App\Imports\ArsipLamaImport;
 use App\Exports\exportdokumenpencairan;
 
@@ -22,10 +23,68 @@ class ArsipController extends Controller
     }
     
     public function file($id)
-    {
-        $arsip = ArsipLama::findOrFail($id);
-        return view('Arsip.file', compact('arsip'));
+{
+    $arsip = ArsipLama::findOrFail($id);
+    
+    // Get the related Bendahara record based on the 'tipe' in ArsipLama
+    $bendahara = Bendahara::where('dpa_id', $arsip->tipe)->first();
+
+    // Initialize an empty array of indicators
+    $indicators = [
+        'spp' => null,
+        'sptjmspp' => null,
+        'verif_spp' => null,
+        'spm' => null,
+        'sptjmspm' => null,
+        'lampiran_sumber_dana' => null,
+        'sp2d' => null,
+    ];
+
+    // Check if Bendahara record exists, and if so, populate the indicators
+    if ($bendahara) {
+        $indicators = [
+            'spp' => $bendahara->spp,
+            'sptjmspp' => $bendahara->sptjmspp,
+            'verif_spp' => $bendahara->verif_spp,
+            'spm' => $bendahara->spm,
+            'sptjmspm' => $bendahara->sptjmspm,
+            'lampiran_sumber_dana' => $bendahara->lampiran_sumber_dana,
+            'sp2d' => $bendahara->sp2d,
+        ];
     }
+
+    return view('Arsip.file', compact('arsip', 'indicators'));
+}
+
+public function storefile(Request $request, $id)
+{
+    // Find the ArsipLama record
+    $arsip = ArsipLama::findOrFail($id);
+
+    // Check if a Bendahara record with the same 'dpa_id' already exists
+    $bendahara = Bendahara::firstOrNew(['dpa_id' => $arsip->tipe]);
+
+    // Define the fields that correspond to file uploads
+    $fileFields = ['spp', 'sptjmspp', 'verif_spp', 'spm', 'sptjmspm', 'lampiran_sumber_dana', 'sp2d'];
+
+    foreach ($fileFields as $field) {
+        if ($request->hasFile($field)) {
+            // Store the file in a subdirectory based on the field name
+            $berkasPath = $request->file($field)->store($field, 'public');
+            $bendahara->$field = $berkasPath;
+        }
+        // If the field is already filled, don't change it
+        // If the field is not filled and no file is uploaded, it will remain as is
+    }
+
+    // Save the Bendahara record
+    $bendahara->save();
+
+    // Redirect back with a success message
+    return redirect()->back()->with('success', 'Files uploaded and stored successfully.');
+}
+
+
 
     public function update(Request $request, $id)
     {
