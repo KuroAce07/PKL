@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 use App\Models\ArsipLama;
 use App\Models\DPA;
+use App\Models\Realisasi;
 use App\Models\User;
+use App\Models\Rekanan;
 use Illuminate\Http\Request;
 use App\Rules\MatchOldPassword;
 use Illuminate\Support\Facades\DB;
@@ -35,7 +37,10 @@ class HomeController extends Controller
     // Establish connection to the 'dpa' database
     $dpaCount = DPA::count();
 
-    return view('home', compact('arsipCount', 'dpaCount'));
+    //total rekanan
+    $realisasiCount = Realisasi::count();
+
+    return view('home', compact('arsipCount', 'dpaCount','realisasiCount'));
 }
 
     /**

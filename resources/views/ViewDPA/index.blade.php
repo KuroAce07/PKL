@@ -325,9 +325,13 @@
     @hasrole('PPTK')
     @if ($column == 'B')
     <td>
+        @if ($dpa->user_id2==null)
+        Belum diverifikasi Pejabat Pengadaan
+        @else
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#descriptionModalPPPTK-{{ $dpa->id_dpa }}">
 Lihat Keterangan Disposisi
 </button>
+@endif
 </div>
 <!-- Modal -->
 <div class="modal fade" id="descriptionModalPPPTK-{{ $dpa->id_dpa }}" tabindex="-1" role="dialog"
@@ -678,41 +682,46 @@ Lihat Keterangan Disposisi
             </td>
             @endhasrole
             @php
-            $isDpaAlreadyCreated = \App\Models\Ceklisform::where('dpa_id', $dpa->id)->exists();
+            $cekLisForm = \App\Models\Ceklisform::where('dpa_id', $dpa->id)->first();
             $spp = \App\Models\Bendahara::where('dpa_id', $dpa->id)->first();
-            @endphp
-            @hasrole('Bendahara')
+        @endphp
+        
+        @hasrole('Bendahara')
             @if ($ke == 'ceklis' || $ke == '')
-                @if (!$isDpaAlreadyCreated)
-                <!-- Check if DPA hasn't been created -->
-                <td><a href="{{ route('ceklisform.index', ['id' => $dpa->id]) }}" class="btn btn-primary edit-btn">Ceklis</a></td>
+                @if (!$cekLisForm)
+                    <!-- Check if DPA hasn't been created -->
+                    <td><a href="{{ route('ceklisform.index', ['id' => $dpa->id]) }}" class="btn btn-primary edit-btn">Ceklis</a></td>
                 @else
-                <td><a href="{{ route('ceklisform.result', ['id' => $dpa->id]) }}" class="btn btn-success">Lihat Hasil</a></td>
+                    <td><a href="{{ route('ceklisform.result', ['id' => $dpa->id]) }}" class="btn btn-success">Lihat Hasil</a></td>
                 @endif
             @endif
+        
             @if ($ke == 'SPP' || $ke == '')
-                @if ($spp == null)
-                <td><a href="{{ route('bendahara.create_spp', ['id' => $dpa->id]) }}" class="btn btn-success edit-btn">SPP</a></td>
+                @if (!$spp || ($spp && $spp->spp === null))
+                    <td><a href="{{ route('bendahara.create_spp', ['id' => $dpa->id]) }}" class="btn btn-success edit-btn">SPP</a></td>
                 @else
-                <td>Sudah Ada</td>
+                    <td>Sudah Ada</td>
                 @endif
             @endif
+        
             @if ($ke == 'SPM' || $ke == '')
-                @if ($spp == null)
-                <td><a href="{{ route('bendahara.create_spm', ['id' => $dpa->id]) }}" class="btn btn-warning edit-btn">SPM</a></td>
+                @if (!$spp || ($spp && $spp->spm === null))
+                    <td><a href="{{ route('bendahara.create_spm', ['id' => $dpa->id]) }}" class="btn btn-warning edit-btn">SPM</a></td>
                 @else
-                <td>Sudah Ada</td>
+                    <td>Sudah Ada</td>
                 @endif
             @endif
+        
             @if ($ke == 'SP2D' || $ke == '')
-                @if ($spp == null)
-                <td><a href="{{ route('bendahara.create_sp2d', ['id' => $dpa->id]) }}" class="btn btn-danger edit-btn">SP2D</a></td>
+                @if (!$spp || ($spp && $spp->sp2d === null))
+                    <td><a href="{{ route('bendahara.create_sp2d', ['id' => $dpa->id]) }}" class="btn btn-danger edit-btn">SP2D</a></td>
                 @else
-                <td>Sudah Ada</td>
+                    <td>Sudah Ada</td>
                 @endif
                 <td><a href="{{ route('bendahara.submit', ['dpa_id' => $dpa->id]) }}" class="btn btn-dark edit-btn">Tambahkan Ke Dokumen Pencairan</a></td>
             @endif
-            @endhasrole
+        @endhasrole
+        
             </tr>
             @endforeach
             </tbody>
